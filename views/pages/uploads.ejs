@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<% include ../partials/head %>
+	<title>Uploads | YouTube API</title>
+	<link rel="stylesheet" href="/public/css/uploads.css">
+	<script type="text/javascript" src="/public/js/uploads.js"></script>
+</head>
+
+<body>
+	<header>
+		<% include ../partials/header %>
+	</header>
+
+	<main>
+		<!-- content -->
+		<div class="container main-content">
+			<div class="no-uploads-container" id="no-uploads-container">
+				<div class="no-uploads-message-box" id="no-uploads-message">
+					<h2>There are currently no active uploads.</h2>
+					<button type="button" class="btn btn-default btn-large" id="refresh-uploads-btn">Refresh List</button>
+				</div>
+				<div class="loader" id="uploads-loader"></div>
+			</div>
+			
+			<div class="upload-page-content">
+				<div class="upload-table-container" id="upload-table-container">
+					<h3>Uploads</h3>
+					<table class="table" id="uploads-table">
+						<thead>
+							<tr>
+								<th scope="col">#</th>
+								<th scope="col">Status</th>
+								<th scope="col">Filename</th>
+								<th scope="col">Size</th>
+								<th scope="col">Progress</th>
+							</tr>
+						</thead>
+						<tbody id="uploads-table-body">
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</main>
+
+	<footer class="footer">
+		<%- include('../partials/footer', footer); %>
+	</footer>
+</body>
+
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<% include ../partials/head %>
+		<title>Errors | YouTube API</title>
+		<link rel="stylesheet" href="/public/css/errors.css">
+</head>
+
+<body>
+	<header>
+		<% include ../partials/header %>
+	</header>
+
+	<main>
+		<!-- content -->
+		<div class="container main-content">
+			<div class="errors-container">
+				<ul class="errors-list">
+					<% for(var i = 0; i < errors.length; i++) { %>
+					<li class="error-entry">
+						<%= errors[i].method %>
+							<span class="error-entry-message">
+								<%= errors[i].url %>
+							</span>
+							<span class="error-entry-time">
+								<%= errors[i].time %>
+							</span>
+					</li>
+					<% } %>
+				</ul>
+			</div>
+		</div>
+	</main>
+
+	<footer class="footer">
+		<%- include('../partials/footer', footer); %>
+	</footer>
+</body>
+
+</html>

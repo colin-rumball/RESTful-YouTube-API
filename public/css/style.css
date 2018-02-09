@@ -1,0 +1,71 @@
+html {
+	height: 100%;
+}
+
+body {
+	height: 100%;
+	background-color: #535760;
+	font-family: 'Roboto',
+	sans-serif;
+}
+
+.main-content {
+	min-height: calc(99.4vh - 100px);
+}
+
+/* Footer */
+
+.footer {
+	height: 50px;
+	text-align: center;
+	background-color: #343a40;
+	color: white;
+	line-height: 50px;
+	font-size: 16px;
+}
+
+.footer .services-and-errors span {
+	padding: 0 15px;
+}
+
+.footer .version-number {
+	float: right;
+	border-bottom: 2px dashed #74797E;
+	line-height: 20px;
+	margin-top: 15px;
+}
+
+/* Home Page Stuff */
+
+.page-selectors-container {
+	padding-top: 12%;
+}
+
+.page-selector {
+	border: 2px solid #74797E;
+	border-radius: 15px;
+	text-align: center;
+	color: white;
+	cursor: pointer;
+	margin: 8px 0px;
+	background-color: #5f636d;
+}
+
+.page-selector:hover {
+	border: 2px solid rgb(141, 146, 151);
+	background-color: #757985;
+}
+
+.page-selector:active {
+	border: 3px solid rgb(197, 204, 211);
+}
+
+.page-selector .fa {
+	font-size: 78px;
+	line-height: 120px;
+}
+
+.page-selector p {
+	font-size: 22px;
+	user-select: none;
+}

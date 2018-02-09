@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<% include ../partials/head %>
+		<title>Logs | YouTube API</title>
+		<link rel="stylesheet" href="/public/css/logs.css">
+		<script type="text/javascript" src="/public/js/logs.js"></script>
+</head>
+
+<body>
+	<header>
+		<% include ../partials/header %>
+	</header>
+
+	<main>
+		<!-- content -->
+		<div class="container main-content">
+			<div class="logs-page-content">
+				<div class="logs-container">
+					<ul class="log-list">
+						<% for(var i = 0; i < logs.length; i++) { %>
+							<li class="log-entry">
+								<%= logs[i].method %>
+								<span class="log-entry-url"><%= logs[i].url %> </span>
+								<!-- Body: <%= logs[i].body %> -->
+								<span class="log-entry-time"><%= logs[i].time %></span>
+							</li>
+						<% } %>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</main>
+
+	<footer class="footer">
+		<%- include('../partials/footer', footer); %>
+	</footer>
+</body>
+
+</html>

@@ -1,0 +1,23 @@
+<!-- footer -->
+<div class="container">
+	<span class="services-and-errors">
+		<!-- Services -->
+		<% if (services > 5) { %>
+		<span><i style="color:green;" class="fa fa-check-circle"></i> All Services Online</span>
+		<% } else if (services > 0) { %>
+		<span><i style="color:orange;" class="fa fa-exclamation-circle"></i> <%= (6 - services) %> Services Offline</span>
+		<% } else { %>
+		<span><i style="color:red;" class="fa fa-exclamation-circle"></i> All Services Offline</span>
+		<% } %>
+
+		<!-- Errors -->
+		<% if (errors > 0) { %>
+		<span><i style="color:red;" class="fa fa-exclamation-circle"></i> <%=errors%> New Errors Reported</span>
+		<% } else { %>
+		<span><i style="color:green;" class="fa fa-check-circle"></i> No New Errors Reported</span>
+		<% } %>
+	</span>
+
+	<!-- Version -->
+	<span class="version-number"> <%= version %></span>
+</div>

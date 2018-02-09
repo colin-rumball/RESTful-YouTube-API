@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<% include ../partials/head %>
+	<title>Dashboard | YouTube API</title>
+	<script type="text/javascript" src="/public/js/dashboard.js"></script>
+	<link rel="stylesheet" href="/public/css/dashboard.css">
+</head>
+
+<body>
+	<header>
+		<% include ../partials/header %>
+	</header>
+
+	<main>
+		<!-- content -->
+		<div class="container main-content dashboard-content">
+			<div class="row">
+				<div class="col-xl-3 col-lg-4 col-md-5">
+					<div class="config-field-container">
+						<h3>Services</h3>
+						<div class="toggle">
+							<span class="switch-label">Uploading</span>
+							<label class="service-switch" >
+								<input id="uploading" type="checkbox" <%= services.uploading %>>
+								<span class="slider"></span>
+							</label>
+						</div>
+						<div class="toggle">
+							<span class="switch-label">Deleting</span>
+							<label class="service-switch" >
+								<input id="deleting" type="checkbox" <%= services.deleting %>>
+								<span class="slider"></span>
+							</label>
+						</div>
+						<div class="toggle">
+							<span class="switch-label">Editing</span>
+							<label class="service-switch" >
+								<input id="editing" type="checkbox" <%= services.editing %>>
+								<span class="slider"></span>
+							</label>
+						</div>
+						<div class="toggle">
+							<span class="switch-label">Playlists</span>
+							<label class="service-switch" >
+								<input id="playlists" type="checkbox" <%= services.playlists %>>
+								<span class="slider"></span>
+							</label>
+						</div>
+						<div class="toggle">
+							<span class="switch-label">Thumbnails</span>
+							<label class="service-switch" >
+								<input id="thumbnails" type="checkbox" <%= services.thumbnails %>>
+								<span class="slider"></span>
+							</label>
+						</div>
+						<div class="toggle">
+							<span class="switch-label">Logging</span>
+							<label class="service-switch" >
+								<input id="logging" type="checkbox" <%= services.logging %>>
+								<span class="slider"></span>
+							</label>
+						</div>
+					</div>
+				</div>
+				<div class="col-xl-9 col-lg-8 col-md-7">
+					<div class="config-field-container">
+						<h3>Tokens</h3>
+						<div class="list-group">
+							<% for (var i = 0; i < tokens.length; i++) { %>
+							<li class="list-group-item"><%= tokens[i].name %></li>
+							<% } %>
+						</div>
+						<input class="btn btn-primary new-token-button" type="button" id="newTokenBtn" value="Add New Token">
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-lg-12">
+					<div class="config-field-container">
+						<h3>Config</h3>
+						<div class="form-group">
+							<textarea class="form-control" id="config" rows="5" id="comment" disabled><%= config %></textarea>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-lg-12">
+					<div class="config-field-container" id="client-secret-uploader">
+						<h3>Client Secret</h3>
+						<p>Upload a new client secret to use for all YouTube API methods</p>
+						<form ref='cs-uploadForm' id='cs-uploadForm' action='http://localhost:3000/ClientSecret' method='post' encType="multipart/form-data">
+							<input type="file" id="cs-file-input" class="cs-file-input" name="ClientSecret" />
+							<span class="btn btn-primary cs-file-label-container" id="cs-file-label-container">
+								<label id="cs-file-label" for="cs-file">
+									<i class="fa fa-cloud-upload"></i>
+									<span id="cs-file-title">Choose a file...</span>
+								</label>
+							</span>
+							<input class="btn btn-primary cs-form-submit" type='submit' id="cs-form-submit" value='Upload!' disabled/>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</main>
+
+	<footer class="footer">
+		<%- include('../partials/footer', footer); %>
+	</footer>
+</body>
+
+</html>

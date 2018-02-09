@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<% include ../partials/head %>
+		<title>Home | YouTube API</title>
+	</head>
+	<body>
+		<header>
+			<% include ../partials/header %>
+			<script type="text/javascript" src="/public/js/home.js"></script>
+		</header>
+
+		<main>
+			<!-- content -->
+			<div class="container main-content page-selectors-container">
+				<div class="row">
+					<div class="col-lg-3 col-md-6 col-sm-12">
+						<div class="page-selector" id="dashboard">
+							<i class="fa fa-wrench icon" aria-hidden="true"></i>
+							<p>Dashboard</p>
+						</div>
+					</div>
+					<div class="col-lg-3 col-md-6 col-sm-12">
+						<div class="page-selector" id="errors">
+							<i class="fa fa-exclamation-triangle icon" aria-hidden="true"></i>
+							<p>Errors</p>
+						</div>
+					</div>
+					<div class="col-lg-3 col-md-6 col-sm-12">
+						<div class="page-selector" id="logs">
+							<i class="fa fa-file-text icon" aria-hidden="true"></i>
+							<p>Logs</p>
+						</div>
+					</div>
+					<div class="col-lg-3 col-md-6 col-sm-12">
+						<div class="page-selector" id="uploads">
+							<i class="fa fa-upload icon" aria-hidden="true"></i>
+							<p>Uploads</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</main>
+
+		<footer class="footer">
+			<%- include('../partials/footer', footer); %>
+		</footer>
+	</body>
+</html>
