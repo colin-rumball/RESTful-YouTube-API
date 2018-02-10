@@ -1,5 +1,6 @@
 .upload-page-content {
 	padding-top: 5%;
+	display: none;
 }
 
 .no-uploads-container {
@@ -61,6 +62,8 @@
 
 .progress-bar {
 	color: #343a40;
+	text-align: center;
+	
 }
 
 /* Loading Animation */

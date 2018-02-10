@@ -1,0 +1,24 @@
+<tr id=" <%= uid %> ">
+	<td id="uid">
+		<%= uid %>
+	</td>
+	<td id="status">
+		<%= status %>
+	</td>
+	<td id="filename">
+		<%= filename %>
+	</td>
+	<td id="fileSize">
+		<%= fileSize %>
+	</td>
+	<td id="progress">
+		<div class="progress" style="height: 20px;">
+			<div class="progress-bar" role="progressbar" style="width: <%= progress %>%;" aria-valuenow=" <%= progress %>" aria-valuemin="0"
+				aria-valuemax="100">
+				<% if (progress > 98) { %>
+					<%= progress %> %
+				<% } %>
+			</div>
+		</div>
+	</td>
+</tr>
