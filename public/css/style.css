@@ -13,6 +13,13 @@ body {
 	min-height: calc(99.4vh - 100px);
 }
 
+h1 {
+	color: white;
+	text-align: center;
+	font-size: 52px;
+	padding: 10px;
+}
+
 /* Footer */
 
 .footer {
