@@ -7,14 +7,14 @@ var googleAuth = require('google-auth-library');
  *
  * @param {Object} credentials The authorization client credentials.
  */
-var authenticate = async (tokenManager, credentials) => {
+var authenticate = async (authManager, credentials) => {
 	var clientSecret = credentials.installed.client_secret;
     var clientId = credentials.installed.client_id;
 	var redirectUrl = credentials.installed.redirect_uris[0];
 	var auth = new googleAuth();
 	var oauth2Client = new auth.OAuth2(clientId, clientSecret, redirectUrl);
 
-	oauth2Client.credentials = tokenManager.getCurrentToken();
+	oauth2Client.credentials = authManager.tryGetCurrentToken().token;
 
     // Check if we have previously stored a token.
     return fse.readFile(TOKEN_PATH)

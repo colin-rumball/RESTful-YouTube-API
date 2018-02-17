@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<% include ../partials/head %>
+		<title>Local Upload | YouTube API</title>
+		<script type="text/javascript" src="/public/js/local-upload.js"></script>
+</head>
+
+<body>
+	<header>
+		<% include ../partials/header %>
+	</header>
+
+	<main>
+		<div class="container main-content">
+			<form id="upload-form" action="/uploads" method="POST" style="padding-top: 2%;">
+				<input type="text" name="filename" id="filename" placeholder="Filename...">
+			</form>
+		</div>
+	</main>
+
+	<footer class="footer">
+		<%- include('../partials/footer', footer); %>
+	</footer>
+</body>
+
+</html>

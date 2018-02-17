@@ -70,7 +70,7 @@
 						<h3>Tokens</h3>
 						<div class="list-group">
 							<% for (var i = 0; i < tokens.length; i++) { %>
-							<li class="list-group-item"><%= tokens[i].name %></li>
+								<%- include('../partials/token', tokens[i]); %>
 							<% } %>
 						</div>
 						<input class="btn btn-primary new-token-button" type="button" id="newTokenBtn" value="Add New Token">
@@ -92,7 +92,7 @@
 					<div class="config-field-container" id="client-secret-uploader">
 						<h3>Client Secret</h3>
 						<p>Upload a new client secret to use for all YouTube API methods</p>
-						<form ref='cs-uploadForm' id='cs-uploadForm' action='http://localhost:3000/ClientSecret' method='post' encType="multipart/form-data">
+						<form ref='cs-uploadForm' id='cs-uploadForm' action='/ClientSecret' method='post' encType="multipart/form-data">
 							<input type="file" id="cs-file-input" class="cs-file-input" name="ClientSecret" />
 							<span class="btn btn-primary cs-file-label-container" id="cs-file-label-container">
 								<label id="cs-file-label" for="cs-file">

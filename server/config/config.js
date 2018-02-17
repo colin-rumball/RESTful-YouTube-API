@@ -27,24 +27,6 @@ class Config {
 		storeConfig(this.config);
 	}
 
-	addToken(id, name, token) {
-		var tokenObj = {
-			id,
-			name,
-			token
-		}
-		this.config.tokens.push(tokenObj);
-		storeConfig(this.config);
-	}
-
-	getCurrentToken() {
-		return this.config.tokens[0];
-	}
-
-	getTokens() {
-		return this.config.tokens;
-	}
-
 	toJSON() {
 		return this.config;
 	}
