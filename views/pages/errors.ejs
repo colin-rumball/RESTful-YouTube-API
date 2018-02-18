@@ -5,6 +5,8 @@
 	<% include ../partials/head %>
 		<title>Errors | YouTube API</title>
 		<link rel="stylesheet" href="/public/css/errors.css">
+		<link rel="stylesheet" href="/public/css/table-style.css">
+		<script type="text/javascript" src="/public/js/errors.js"></script>
 </head>
 
 <body>
@@ -17,19 +19,22 @@
 		<div class="container main-content">
 			<div class="errors-container">
 				<h1>Errors</h1>
-				<ul class="errors-list">
-					<% for(var i = 0; i < errors.length; i++) { %>
-					<li class="error-entry">
-						<%= errors[i].method %>
-							<span class="error-entry-message">
-								<%= errors[i].url %>
-							</span>
-							<span class="error-entry-time">
-								<%= errors[i].time %>
-							</span>
-					</li>
-					<% } %>
-				</ul>
+				<table class="table" id="errors-table">
+					<thead>
+						<tr>
+							<th scope="col">Message</th>
+							<th scope="col">Stack</th>
+							<th scope="col">Date</th>
+							<th scope="col">Time</th>
+						</tr>
+					</thead>
+					<tbody id="errors-table-body">
+						<% for(var i = 0; i < errors.length; i++) { %>
+							<%- include('../partials/error-template', errors[i]); %>
+						<% } %>
+					</tbody>
+				</table>
+				<button class="btn btn-primary delete-errors-button" id="delete-errors-button">Clear Errors</button>
 			</div>
 		</div>
 	</main>

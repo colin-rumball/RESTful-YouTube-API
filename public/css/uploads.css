@@ -28,38 +28,6 @@
 
 /* Uploads Table */
 
-.upload-table-container {
-	display: none;
-	padding: 20px;
-	background-color: #95989e;
-	border: 1px solid rgba(230, 234, 238, 0.3);
-	border-radius: 20px;
-}
-
-.table {
-	border-radius: 20px;
-	padding: 18px;
-	background-color: #d4d8e0;
-}
-
-.table thead th {
-	border: none;
-	background-color: #414141;
-	color: white;
-}
-
-.table thead th:nth-of-type(1) {
-	border-radius: 20px 0 0 0;
-}
-
-.table thead th:last-of-type {
-	border-radius: 0 20px 0 0;
-}
-
-.table td {
-	border: none;
-}
-
 .progress-bar {
 	color: #343a40;
 	text-align: center;

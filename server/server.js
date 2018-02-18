@@ -34,7 +34,6 @@ app.use((req, res, next) => {
 	if (config.isServiceEnabled('logging')) {
 		logger.logRequest(req)
 	}
-
 	next();
 });
 
@@ -164,6 +163,16 @@ app.post('/ClientSecret', (req, res) => {
 });
 
 // ------ DELETE
+
+app.delete('/logs', (req, res) => {
+	logger.deleteLogs();
+	res.sendStatus(200);
+});
+
+app.delete('/errors', (req, res) => {
+	logger.deleteErrors();
+	res.sendStatus(200);
+});
 
 app.delete('/delete/:id', (req, res) => {
 	var videoId = req.params.id;

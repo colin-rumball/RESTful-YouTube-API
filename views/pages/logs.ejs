@@ -5,6 +5,7 @@
 	<% include ../partials/head %>
 		<title>Logs | YouTube API</title>
 		<link rel="stylesheet" href="/public/css/logs.css">
+		<link rel="stylesheet" href="/public/css/table-style.css">
 		<script type="text/javascript" src="/public/js/logs.js"></script>
 </head>
 
@@ -18,18 +19,22 @@
 		<div class="container main-content">
 			<div class="logs-page-content">
 				<h1>Logs</h1>
-				<div class="logs-container">
-					<ul class="log-list">
+				<table class="table" id="logs-table">
+					<thead>
+						<tr>
+							<th scope="col">Method</th>
+							<th scope="col">Url</th>
+							<th scope="col">Date</th>
+							<th scope="col">Time</th>
+						</tr>
+					</thead>
+					<tbody id="logs-table-body">
 						<% for(var i = 0; i < logs.length; i++) { %>
-							<li class="log-entry">
-								<%= logs[i].method %>
-								<span class="log-entry-url"><%= logs[i].url %> </span>
-								<!-- Body: <%= logs[i].body %> -->
-								<span class="log-entry-time"><%= logs[i].time %></span>
-							</li>
+							<%- include('../partials/log-template', logs[i]); %>
 						<% } %>
-					</ul>
-				</div>
+					</tbody>
+				</table>
+				<button class="btn btn-primary delete-logs-button" id="delete-logs-button">Clear Logs</button>
 			</div>
 		</div>
 	</main>
