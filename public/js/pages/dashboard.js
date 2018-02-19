@@ -28,6 +28,16 @@ $(function () {
 		$('#cs-form-submit').remove();
 	});
 
+	$('#newTokenBtn').click(function(e) {
+		$.ajax({
+			url: '/dashboard/token-url',
+			type: 'GET',
+			success: function(response) {
+				$('#token-authentication-url').attr('href', response.url);
+			}
+		})
+	});
+
 	$('#add-token-form').submit(function (e) {
 		e.preventDefault();
 

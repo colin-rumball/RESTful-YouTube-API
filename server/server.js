@@ -31,7 +31,7 @@ app.use('/public', express.static(__dirname + '/../public'));
 app.use(favicon(path.join(__dirname, 'favicon', 'favicon.ico')));
 app.set('view engine', 'ejs');
 
-// Logging
+// Logging middleware
 app.use((req, res, next) => {
 	if (config.isServiceEnabled('logging')) {
 		logger.logRequest(req)
@@ -56,14 +56,11 @@ app.get('/dashboard', (req, res) => {
 	res.render('pages/dashboard', dbObj);
 });
 
-app.get('/addToken', (req, res) => { // TODO
-	fse.readJson('server/client_secret/client_secret.json').then((clientSecret) => {
+app.get('/dashboard/token-url', (req, res) => {
+	fse.readJson('server/client_secret/client_secret.json').then((clientSecret) => { // TODO
 		authManager.generateNewOAuth2Client(clientSecret);
 		var url = authManager.generateTokenUrl();
-		res.render('pages/addToken', {
-			url,
-			footer: createFooterObject()
-		})
+		res.send({url});
 	});
 });
 
