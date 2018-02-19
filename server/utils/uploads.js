@@ -1,16 +1,19 @@
 const prettyBytes = require('pretty-bytes');
+const request = require('request-promise-native');
 
 class Uploads {
     constructor() {
         this.uploads = [];
     }
 
-	addUpload(uid, filename, fileSize, req) {
+	addUpload(uid, filename, fileSize, req, callbackUrl) {
         var upload = {
 			uid,
-			filename, 
+			filename,
 			fileSize,
-			req 
+			youtubeId: null,
+			req,
+			callbackUrl
 		};
         this.uploads.push(upload);
         return upload;
@@ -37,13 +40,26 @@ class Uploads {
 	GetUploadStatus(uid) {
 		var upload = this.getUpload(uid);
 		if (upload) {
-			var status = 'preparing';
-			if (upload.req.req && upload.req.req.connection) {
-				status = 'uploading';
+			var status = 'Preparing';
+			if (upload.youtubeId) {
+				status = 'Complete'
+			} else if (upload.req.req && upload.req.req.connection) {
+				status = 'Uploading';
 			}
 			return status;
 		}
 		return 'unknown';
+	}
+
+	onUploadComplete(uId, youtubeId) {
+		var completedUpload = this.uploads.find((upload) => upload.uid === uId);
+		completedUpload.youtubeId = youtubeId;
+		request.patch({
+			url: completedUpload.callbackUrl,
+			json: {
+				youtubeId: youtubeId
+			}
+		});
 	}
 
 	toJSON() {
@@ -54,6 +70,7 @@ class Uploads {
 				status: this.GetUploadStatus(upload.uid),
 				filename: upload.filename,
 				fileSize: prettyBytes(upload.fileSize),
+				youtubeId: upload.youtubeId,
 				progress: this.GetUploadProgress(upload.uid)
 			}
 			uploadObjs.push(uploadObj);

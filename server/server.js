@@ -8,6 +8,7 @@ const favicon = require('serve-favicon');
 const path = require('path');
 
 // Services
+const {editVideo} = require('./utils/services');
 const {getThumbnail} = require('./utils/services');
 const {uploadVideo} = require('./utils/services');
 const {deleteVideo} = require('./utils/services');
@@ -95,7 +96,7 @@ app.get('/uploads', (req, res) => {
 app.get('/thumbnail/:id', (req, res) => {
 	var videoId = req.params.id;
 	if (config.isServiceEnabled('thumbnails')) {
-		getThumbnail2(videoId, res); // TODO
+		tryGetThumbnail(videoId, res); // TODO
 		// res.sendStatus(200); // TODO
 	} else {
 		res.sendStatus(503);
@@ -148,11 +149,23 @@ app.post('/dashboard/client-secret', (req, res) => {
 
 app.post('/uploads', (req, res) => {
 	if (config.isServiceEnabled('uploading')) {
-		tryUploadVideo(req.body.filename);
+		tryUploadVideo(req.body.filename, req.body.callbackUrl);
 		res.redirect('/uploads');
 	} else {
 		res.sendStatus(503);
 		logger.logError(new Error('Upload attempt while service is offline'));
+	}
+});
+
+// ------ PATCH
+
+app.patch('/videos', (req, res) => {
+	if (config.isServiceEnabled('editing')) {
+		tryEditVideo(req.body);
+		res.sendStatus(200);
+	} else {
+		res.sendStatus(503);
+		logger.logError(new Error('Edit attempt while service is offline'));
 	}
 });
 
@@ -181,14 +194,32 @@ app.listen(5000, (err) => {
 	console.log('Running server on port 5000'); // TODO: do more here
 });
 
-var getThumbnail2 = async (videoId, res) => { // TODO
+// ------ SERVICE ATTEMPTS
+
+var tryEditVideo = async (body) => {
+	var params = { // TODO
+		'params': { 'part': 'snippet,status' }, 'properties': {
+			'id': body.videoId,
+			'snippet.categoryId': '22',
+			'snippet.description': body.description,
+			'snippet.tags[]': body.tags,
+			'snippet.title': body.title
+		}
+	};
+	var clientSecret = await fse.readJson('server/client_secret/client_secret.json'); // TODO
+	var authClient = await authManager.getAuthClient(clientSecret);
+	editVideo(authClient, params);
+}
+
+var tryGetThumbnail = async (videoId, res) => { // TODO
 	var params = { // TODO
 	'params': {
 		'id': videoId,
 		'part': 'snippet,contentDetails,statistics'
 	}};
 	var clientSecret = await fse.readJson('server/client_secret/client_secret.json'); // TODO
-	getThumbnail(authManager.getAuthClient(clientSecret), params, (err, response) => {
+	var authClient = await authManager.getAuthClient(clientSecret);
+	getThumbnail(authClient, params, (err, response) => {
 		if (err) {
 			console.log('The API returned an error: ' + err); // TODO
 			return;
@@ -200,14 +231,15 @@ var getThumbnail2 = async (videoId, res) => { // TODO
 var tryDeleteVideo = async (videoId, res) => {
 	if (config.isServiceEnabled('deleting')) {
 		var clientSecret = await fse.readJson('server/client_secret/client_secret.json'); // TODO
-		deleteVideo(authManager.getAuthClient(clientSecret), videoId);
+		var authClient = await authManager.getAuthClient(clientSecret);
+		deleteVideo(authClient, videoId);
 	} else {
 		res.sendStatus(503);
 		logger.logError(new Error('Delete attempt while service is offline'));
 	}
 };
 
-var tryUploadVideo = async (filename) => {
+var tryUploadVideo = async (filename, callbackUrl) => {
 	try {
 		let pathToFile = path.join(__dirname, '/../', filename);
 		const exists = await fse.pathExists(pathToFile);
@@ -224,8 +256,11 @@ var tryUploadVideo = async (filename) => {
 			const filesize = await fse.statSync(filename).size;
 			var clientSecret = await fse.readJson('server/client_secret/client_secret.json');
 			var authClient = await authManager.getAuthClient(clientSecret);
-			var uploadReq = await startUpload(authClient, params);
-			uploads.addUpload(uniqid(), filename, filesize, uploadReq);
+			var uId = uniqid();
+			var uploadReq = await uploadVideo(authClient, params, function (youtubeId) {
+				uploads.onUploadComplete(uId, youtubeId);
+			});
+			uploads.addUpload(uId, filename, filesize, uploadReq, callbackUrl);
 		} else {
 			throw new Error(`File (${filename}) does not exist for upload.`);
 		}
@@ -233,6 +268,8 @@ var tryUploadVideo = async (filename) => {
 		logger.logError(e);
 	}
 };
+
+// ------ OTHER STUFF
 
 var createFooterObject = function () {
 	return {
@@ -258,15 +295,15 @@ function isNumber(value) {
 // 	}
 // };
 
-// uploads.addUpload(uniqid(), 'test.avi', 100, req);
-// uploads.addUpload(uniqid(), 'test.avi', 100, req);
-// uploads.addUpload(uniqid(), 'test.avi', 100, req);
+// uploads.addUpload(uniqid(), 'test.avi', 1000, req);
+// uploads.addUpload(uniqid(), 'test.avi', 1000, req);
+// uploads.addUpload(uniqid(), 'test.avi', 1000, req);
 
 // setInterval(() => {
 // 	for (let i = 0; i < uploads.uploads.length; i++) {
 // 		uploads.uploads[i].req.req.connection._bytesDispatched += 1;
-// 		if (uploads.uploads[i].req.req.connection._bytesDispatched > 100) {
+// 		if (uploads.uploads[i].req.req.connection._bytesDispatched > 1000) {
 // 			uploads.uploads[i].req.req.connection._bytesDispatched = 0;
 // 		}
 // 	};
-// }, 500);
+// }, 100);

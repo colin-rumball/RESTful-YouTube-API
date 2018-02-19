@@ -1,8 +1,7 @@
 var googleAuth = require('google-auth-library');
 const fse = require('fs-extra');
 var uniqid = require('uniqid');
-const request = require('request');
-const rp = require('request-promise-native');
+const request = require('request-promise-native');
 const moment = require('moment');
 
 var SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl']
@@ -69,7 +68,7 @@ class AuthManager {
 	}
 
 	refreshToken(token) {
-		return rp.post({
+		return request.post({
 			url: 'https://www.googleapis.com/oauth2/v4/token',
 			form: {
 				client_id: '257951428918-mtv9silb3ar8jvrv35nnvbd02emgcvd4.apps.googleusercontent.com', 

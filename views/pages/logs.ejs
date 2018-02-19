@@ -4,9 +4,9 @@
 <head>
 	<% include ../partials/head %>
 		<title>Logs | YouTube API</title>
-		<link rel="stylesheet" href="/public/css/logs.css">
+		<link rel="stylesheet" href="/public/css/pages/logs.css">
 		<link rel="stylesheet" href="/public/css/table-style.css">
-		<script type="text/javascript" src="/public/js/logs.js"></script>
+		<script type="text/javascript" src="/public/js/pages/logs.js"></script>
 </head>
 
 <body>
@@ -30,7 +30,7 @@
 					</thead>
 					<tbody id="logs-table-body">
 						<% for(var i = 0; i < logs.length; i++) { %>
-							<%- include('../partials/log-template', logs[i]); %>
+							<%- include('../partials/templates/log-template', logs[i]); %>
 						<% } %>
 					</tbody>
 				</table>

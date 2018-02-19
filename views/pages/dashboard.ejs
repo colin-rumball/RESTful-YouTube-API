@@ -4,11 +4,14 @@
 <head>
 	<% include ../partials/head %>
 	<title>Dashboard | YouTube API</title>
-	<script type="text/javascript" src="/public/js/dashboard.js"></script>
-	<link rel="stylesheet" href="/public/css/dashboard.css">
+	<script type="text/javascript" src="/public/js/pages/dashboard.js"></script>
+	<link rel="stylesheet" href="/public/css/pages/dashboard.css">
 </head>
 
 <body>
+	<!-- Modal -->
+	<% include ../partials/modals/add-token-modal %>
+
 	<header>
 		<% include ../partials/header %>
 	</header>
@@ -21,12 +24,12 @@
 				<div class="col-xl-3 col-lg-4 col-md-5">
 					<div class="config-field-container">
 						<h3>Services</h3>
-						<%- include('../partials/service-template', services.uploading); %>
-						<%- include('../partials/service-template', services.deleting); %>
-						<%- include('../partials/service-template', services.editing); %>
-						<%- include('../partials/service-template', services.playlists); %>
-						<%- include('../partials/service-template', services.thumbnails); %>
-						<%- include('../partials/service-template', services.logging); %>
+						<%- include('../partials/templates/service-template', services.uploading); %>
+						<%- include('../partials/templates/service-template', services.deleting); %>
+						<%- include('../partials/templates/service-template', services.editing); %>
+						<%- include('../partials/templates/service-template', services.playlists); %>
+						<%- include('../partials/templates/service-template', services.thumbnails); %>
+						<%- include('../partials/templates/service-template', services.logging); %>
 					</div>
 				</div>
 				<div class="col-xl-9 col-lg-8 col-md-7">
@@ -37,7 +40,7 @@
 								<%- include('../partials/token', tokens[i]); %>
 							<% } %>
 						</div>
-						<input class="btn btn-primary new-token-button" type="button" id="newTokenBtn" value="Add New Token">
+						<input class="btn btn-primary new-token-button" type="button" id="newTokenBtn" value="Add New Token" data-toggle="modal" data-target="#token-modal">
 					</div>
 				</div>
 			</div>

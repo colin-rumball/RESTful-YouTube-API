@@ -4,9 +4,9 @@
 <head>
 	<% include ../partials/head %>
 		<title>Errors | YouTube API</title>
-		<link rel="stylesheet" href="/public/css/errors.css">
+		<link rel="stylesheet" href="/public/css/pages/errors.css">
 		<link rel="stylesheet" href="/public/css/table-style.css">
-		<script type="text/javascript" src="/public/js/errors.js"></script>
+		<script type="text/javascript" src="/public/js/pages/errors.js"></script>
 </head>
 
 <body>
@@ -30,7 +30,7 @@
 					</thead>
 					<tbody id="errors-table-body">
 						<% for(var i = 0; i < errors.length; i++) { %>
-							<%- include('../partials/error-template', errors[i]); %>
+							<%- include('../partials/templates/error-template', errors[i]); %>
 						<% } %>
 					</tbody>
 				</table>

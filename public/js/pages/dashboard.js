@@ -1,8 +1,4 @@
 $(function () {
-	$('#newTokenBtn').click(function () {
-		window.location.href = '/addToken';
-	});
-
 	$('input[type=checkbox]').each(function() {
 		$(this).click(function() {
 			sendNewConfig();
@@ -30,6 +26,25 @@ $(function () {
 		e.preventDefault();
 		readFileAndSend($('#cs-file-input')[0]);
 		$('#cs-form-submit').remove();
+	});
+
+	$('#add-token-form').submit(function (e) {
+		e.preventDefault();
+
+		var tokenName = $('#name').val();
+		var tokenCode = $('#code').val();
+
+		$.ajax({
+			url: '/dashboard/tokens',
+			type: 'POST',
+			data: {
+				name: tokenName,
+				code: tokenCode
+			},
+			success: function () {
+				window.location = '/dashboard';
+			}
+		})
 	});
 });
 
@@ -77,8 +92,6 @@ var sendNewConfig = function() {
 			console.error('Unable to post new services enabled');
 		}
 	});
-
-	console.log(config);
 };
 
 var updateConfig = function(updatedConfig) {

@@ -15,11 +15,11 @@ class Config {
 	}
 
 	getEnabledServices() {
-		var enabledServices = {};
+		var enabledServices = [];
 		var services = this.config.services;
 		for (var service in services) {
 			if (services[service].enabled) {
-				enabledServices[service] = services[service];
+				enabledServices.push(services[service]);
 			}
 		}
 		return enabledServices;
