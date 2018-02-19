@@ -39,7 +39,7 @@ function readFileAndSend(file) {
 	reader.onload = function (e) {
 		$.ajax({
 			type: 'POST',
-			url: '/ClientSecret',
+			url: '/dashboard/client-secret',
 			data: JSON.parse(e.target.result),
 			success: function () {
 				$('#client-secret-uploader').append('Upload Successful!');
@@ -68,7 +68,7 @@ var sendNewConfig = function() {
 
 	$.ajax({
 		type: 'POST',
-		url: '/services',
+		url: '/dashboard/services',
 		data: servicesEnabled,
 		success: function() {
 			requestNewConfig();

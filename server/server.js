@@ -1,14 +1,15 @@
 const fse = require('fs-extra');
 const express = require('express');
-const cors = require('cors');
+const cors = require('cors'); // TODO
 const bodyParser = require('body-parser');
 const uniqid = require('uniqid');
 const prettyBytes = require('pretty-bytes');
 const favicon = require('serve-favicon');
 const path = require('path');
 
-const {startUpload} = require('./utils/uploader');
-const {getThumbnail} = require('./utils/thumbnails');
+// Services
+const {getThumbnail} = require('./utils/services');
+const {uploadVideo} = require('./utils/services');
 const {deleteVideo} = require('./utils/services');
 
 // Classes
@@ -46,14 +47,7 @@ app.get('/', (req, res) => {
 
 app.get('/dashboard', (req, res) => {
 	var dbObj = {
-		services: {
-			uploading: config.isServiceEnabled('uploading') ? 'checked' : '',
-			deleting: config.isServiceEnabled('deleting') ? 'checked' : '',
-			editing: config.isServiceEnabled('editing') ? 'checked' : '',
-			playlists: config.isServiceEnabled('playlists') ? 'checked' : '',
-			thumbnails: config.isServiceEnabled('thumbnails') ? 'checked' : '',
-			logging: config.isServiceEnabled('logging') ? 'checked' : ''
-		},
+		services: config.getServices(),
 		tokens: authManager.getAllTokens(),
 		config: config.toString(),
 		footer: createFooterObject()
@@ -61,7 +55,7 @@ app.get('/dashboard', (req, res) => {
 	res.render('pages/dashboard', dbObj);
 });
 
-app.get('/addToken', (req, res) => {
+app.get('/addToken', (req, res) => { // TODO
 	fse.readJson('server/client_secret/client_secret.json').then((clientSecret) => {
 		authManager.generateNewOAuth2Client(clientSecret);
 		var url = authManager.generateTokenUrl();
@@ -73,9 +67,9 @@ app.get('/addToken', (req, res) => {
 });
 
 app.get('/errors', (req, res) => {
-	logger.pushNewErrorsToOld();
+	logger.pushNewErrorsToOld(); //TODO
 	res.render('pages/errors', {
-		errors: logger.getOldErrors(),
+		errors: logger.getOldErrors(), // TODO
 		footer: createFooterObject()
 	});
 });
@@ -87,13 +81,13 @@ app.get('/logs', (req, res) => {
 	});
 });
 
-app.get('/upload/local', (req, res) => {
+app.get('/upload/local', (req, res) => { // TODO
 	res.render('pages/upload-local', {footer: createFooterObject()});
 });
 
 app.get('/uploads', (req, res) => {
 	res.render('pages/uploads', {
-		uploads: uploads.toJSON(),
+		uploads: uploads.toJSON(), // TODO
 		footer: createFooterObject()
 	});
 });
@@ -101,15 +95,15 @@ app.get('/uploads', (req, res) => {
 app.get('/thumbnail/:id', (req, res) => {
 	var videoId = req.params.id;
 	if (config.isServiceEnabled('thumbnails')) {
-		getThumbnail2(videoId, res);
-		// res.sendStatus(200);
+		getThumbnail2(videoId, res); // TODO
+		// res.sendStatus(200); // TODO
 	} else {
 		res.sendStatus(503);
 		logger.logError(new Error('Thumbnail req attempt while service is offline'));
 	}
 });
 
-app.get('/shutdown', (req, res) => {
+app.get('/shutdown', (req, res) => { // TODO
 	res.render('pages/shutdown', { footer: createFooterObject() });
 	setTimeout(() => {
 		process.exit();
@@ -128,14 +122,28 @@ app.get('/uploads.json', (req, res) => {
 
 // ------ POST
 
-app.post('/services', (req, res) => {
+app.post('/dashboard/services', (req, res) => {
 	config.updateEnabledServices(req.body);
 	res.sendStatus(200);
 });
 
-app.post('/tokens', (req, res) => {
+app.post('/dashboard/tokens', (req, res) => {
 	authManager.createNewToken(config, req.body)
 	res.sendStatus(200);
+});
+
+app.post('/dashboard/client-secret', (req, res) => {
+	let newClientSecret = {
+		installed: req.body.installed
+	};
+
+	let clientSecretDir = __dirname + '/client_secret'; // TODO
+	fse.writeJson(clientSecretDir + '/client_secret.json', newClientSecret).then(() => {// TODO
+		res.sendStatus(200);
+	}).catch((e) => {
+		logger.logError(e);
+		res.sendStatus(500);
+	});
 });
 
 app.post('/uploads', (req, res) => {
@@ -146,20 +154,6 @@ app.post('/uploads', (req, res) => {
 		res.sendStatus(503);
 		logger.logError(new Error('Upload attempt while service is offline'));
 	}
-});
-
-app.post('/ClientSecret', (req, res) => {
-	let newClientSecret = {
-		installed: req.body.installed
-	};
-
-	let clientSecretDir = __dirname + '/client_secret';
-	fse.writeJson(clientSecretDir + '/client_secret.json', newClientSecret).then(() => {
-		res.sendStatus(200);
-	}).catch((e) => {
-		logger.logError(e);
-		res.sendStatus(500);
-	});
 });
 
 // ------ DELETE
@@ -174,7 +168,7 @@ app.delete('/errors', (req, res) => {
 	res.sendStatus(200);
 });
 
-app.delete('/delete/:id', (req, res) => {
+app.delete('/delete/:id', (req, res) => { // TODO: change url so it's to the videos url not jsut delete
 	var videoId = req.params.id;
 	if (videoId && (isNumber(videoId) || isString(videoId))) {
 		tryDeleteVideo(videoId, res);
@@ -184,19 +178,19 @@ app.delete('/delete/:id', (req, res) => {
 // ------ LISTENER
 
 app.listen(5000, (err) => {
-	console.log('Running server on port 5000');
+	console.log('Running server on port 5000'); // TODO: do more here
 });
 
-var getThumbnail2 = async (videoId, res) => {
-	var params = {
+var getThumbnail2 = async (videoId, res) => { // TODO
+	var params = { // TODO
 	'params': {
 		'id': videoId,
 		'part': 'snippet,contentDetails,statistics'
 	}};
-	var clientSecret = await fse.readJson('server/client_secret/client_secret.json');
+	var clientSecret = await fse.readJson('server/client_secret/client_secret.json'); // TODO
 	getThumbnail(authManager.getAuthClient(clientSecret), params, (err, response) => {
 		if (err) {
-			console.log('The API returned an error: ' + err);
+			console.log('The API returned an error: ' + err); // TODO
 			return;
 		}
 		res.send({ url: response.items[0].snippet.thumbnails.standard.url });
@@ -205,7 +199,7 @@ var getThumbnail2 = async (videoId, res) => {
 
 var tryDeleteVideo = async (videoId, res) => {
 	if (config.isServiceEnabled('deleting')) {
-		var clientSecret = await fse.readJson('server/client_secret/client_secret.json');
+		var clientSecret = await fse.readJson('server/client_secret/client_secret.json'); // TODO
 		deleteVideo(authManager.getAuthClient(clientSecret), videoId);
 	} else {
 		res.sendStatus(503);
@@ -219,7 +213,7 @@ var tryUploadVideo = async (filename) => {
 		const exists = await fse.pathExists(pathToFile);
 
 		if (exists) {
-			var params = {
+			var params = { // TODO
 				'params': { 'part': 'snippet,status' }, 'properties': {
 					'snippet.categoryId': '22',
 					'snippet.description': filename,

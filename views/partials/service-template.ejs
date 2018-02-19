@@ -1,0 +1,11 @@
+<div class="toggle">
+	<span class="switch-label"><%=name%></span>
+	<label class="service-switch">
+		<input id="<%=name.toLowerCase()%>" type="checkbox" 
+		<% if (enabled) { %>
+			checked
+		<% } %>
+		>
+		<span class="slider"></span>
+	</label>
+</div>

@@ -6,23 +6,30 @@ class Config {
 		this.config = require("./config.json");
 	}
 
-	isServiceEnabled(service) {
-		var enabled = this.config.services[service].enabled;
-		return (enabled == "true");
+	isServiceEnabled(service) { // TODO: create a way where srvice isn't a string
+		return this.config.services[service].enabled;
+	}
+
+	getServices() {
+		return this.config.services;
 	}
 
 	getEnabledServices() {
-		var enabledServices = [];
+		var enabledServices = {};
 		var services = this.config.services;
 		for (var service in services) {
-			if (services[service].enabled == 'true') {
-				enabledServices.push(service);
+			if (services[service].enabled) {
+				enabledServices[service] = services[service];
 			}
 		}
 		return enabledServices;
 	}
 
 	updateEnabledServices(services) {
+		for (var service in services) {
+			services[service].name = service[0].toUpperCase() + service.substr(1);
+			services[service].enabled = services[service].enabled === 'true' ? true : false;
+		}
 		this.config.services = services;
 		storeConfig(this.config);
 	}

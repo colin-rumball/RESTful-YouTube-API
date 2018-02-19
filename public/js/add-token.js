@@ -6,7 +6,7 @@ $(function() {
 		var tokenCode = $('#code').val();
 
 		$.ajax({
-			url: '/tokens',
+			url: '/dashboard/tokens',
 			type: 'POST',
 			data: {
 				name: tokenName,

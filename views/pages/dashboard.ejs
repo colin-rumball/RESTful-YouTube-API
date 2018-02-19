@@ -21,48 +21,12 @@
 				<div class="col-xl-3 col-lg-4 col-md-5">
 					<div class="config-field-container">
 						<h3>Services</h3>
-						<div class="toggle">
-							<span class="switch-label">Uploading</span>
-							<label class="service-switch" >
-								<input id="uploading" type="checkbox" <%= services.uploading %>>
-								<span class="slider"></span>
-							</label>
-						</div>
-						<div class="toggle">
-							<span class="switch-label">Deleting</span>
-							<label class="service-switch" >
-								<input id="deleting" type="checkbox" <%= services.deleting %>>
-								<span class="slider"></span>
-							</label>
-						</div>
-						<div class="toggle">
-							<span class="switch-label">Editing</span>
-							<label class="service-switch" >
-								<input id="editing" type="checkbox" <%= services.editing %>>
-								<span class="slider"></span>
-							</label>
-						</div>
-						<div class="toggle">
-							<span class="switch-label">Playlists</span>
-							<label class="service-switch" >
-								<input id="playlists" type="checkbox" <%= services.playlists %>>
-								<span class="slider"></span>
-							</label>
-						</div>
-						<div class="toggle">
-							<span class="switch-label">Thumbnails</span>
-							<label class="service-switch" >
-								<input id="thumbnails" type="checkbox" <%= services.thumbnails %>>
-								<span class="slider"></span>
-							</label>
-						</div>
-						<div class="toggle">
-							<span class="switch-label">Logging</span>
-							<label class="service-switch" >
-								<input id="logging" type="checkbox" <%= services.logging %>>
-								<span class="slider"></span>
-							</label>
-						</div>
+						<%- include('../partials/service-template', services.uploading); %>
+						<%- include('../partials/service-template', services.deleting); %>
+						<%- include('../partials/service-template', services.editing); %>
+						<%- include('../partials/service-template', services.playlists); %>
+						<%- include('../partials/service-template', services.thumbnails); %>
+						<%- include('../partials/service-template', services.logging); %>
 					</div>
 				</div>
 				<div class="col-xl-9 col-lg-8 col-md-7">
