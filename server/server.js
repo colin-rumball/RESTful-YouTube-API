@@ -170,6 +170,12 @@ app.patch('/videos', (req, res) => {
 
 // ------ DELETE
 
+app.delete('/dashboard/tokens/:id', (req, res) => {
+	var tokenId = req.params.id;
+	authManager.deleteToken(tokenId);
+	res.sendStatus(200);
+});
+
 app.delete('/logs', (req, res) => {
 	logger.deleteLogs();
 	res.sendStatus(200);

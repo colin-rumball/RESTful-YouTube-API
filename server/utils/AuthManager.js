@@ -3,6 +3,7 @@ const fse = require('fs-extra');
 var uniqid = require('uniqid');
 const request = require('request-promise-native');
 const moment = require('moment');
+const _ = require('lodash');
 
 var SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl']
 var TOKEN_DIR = __dirname + '/../tokens/';
@@ -83,6 +84,10 @@ class AuthManager {
 			}).catch((err) => {
 				console.error(err);
 			});
+	}
+
+	deleteToken(id) {
+		_.remove(this.tokensJson.tokens, (token) => token.id === id);
 	}
 
 	storeToken(id, name, token) {

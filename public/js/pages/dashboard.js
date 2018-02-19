@@ -18,6 +18,19 @@ $(function () {
 		}
 	});
 
+	$('.token-delete-button').each(function(button) {
+		$(this).click(function(e) {
+			var url = `/dashboard/tokens/${e.currentTarget.parentElement.id}`;
+			$.ajax({
+				url: url,
+				type: 'DELETE',
+				success: function (response) {
+					window.location.href = '/dashboard';
+				}
+			});
+		});
+	});
+
 	$('#cs-file-label-container').click(function(e) {
 		$('#cs-file-input').click();
 	});
@@ -35,7 +48,7 @@ $(function () {
 			success: function(response) {
 				$('#token-authentication-url').attr('href', response.url);
 			}
-		})
+		});
 	});
 
 	$('#add-token-form').submit(function (e) {
@@ -52,7 +65,7 @@ $(function () {
 				code: tokenCode
 			},
 			success: function () {
-				window.location = '/dashboard';
+				window.location.href = '/dashboard';
 			}
 		})
 	});

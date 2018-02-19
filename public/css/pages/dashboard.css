@@ -15,6 +15,32 @@
 	background-color: #d4d8e0;
 }
 
+.token-delete-button {
+	position: absolute;
+	right: 0;
+	top: 0;
+	height: 100%;
+	width: 0;
+	padding: 3px;
+	background-color: #005dc0;
+	border: 1px solid #0056b3;
+	text-align: center;
+	line-height: 42px;
+	transition: all 0.3s ease-out;
+	font-size: 20px;
+	overflow: hidden;
+}
+
+.list-group-item:hover .token-delete-button {
+	width: 7%;
+	max-width: 40px;
+}
+
+.token-delete-button:hover {
+	cursor: pointer;
+	background-color: #004da0;
+}
+
 /* Service Switches */
 
 .toggle {
