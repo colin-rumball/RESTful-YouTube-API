@@ -3,33 +3,32 @@ const moment = require('moment');
 const uniqid = require('uniqid');
 const path = require('path');
 
-const pathToDir = path.join(__dirname, '..', '..', 'logs');
+const pathToLogsDir = path.join(__dirname, '..', '..', 'logs');
+const logsFilename = 'logs.json';
+const defaultLogsFilename = 'logs.default.json';
 
 class Logger {
 	constructor() {
-		// ERRORS
-		this.errors = this.tryLoadJson('errors', storeErrors);
-		// LOGS
-		this.logs = this.tryLoadJson('logs', storeLogs);
+		// Load logs from file
+		this.tryLoadLogsJson();
 	}
 
-	tryLoadJson(name, saveFunc) {
-		let pathToJson = path.join(pathToDir, `${name}.json`);
-		var retJson;
+	tryLoadLogsJson() {
+		let pathToJson = path.join(pathToLogsDir, logsFilename);
 		try {
-			retJson = fse.readJsonSync(pathToJson);
+			this.logsObject = fse.readJsonSync(pathToJson);
 		} catch(e) {
-			retJson = this.loadDefaultJson(pathToJson, name);
+			this.logsObject = this.loadDefaultJson(pathToJson);
+			storeLogsObject_sync(this.logsObject);
+			this.logError(new Error('Failed to load log file. Loaded logs from default.'));
 		}
-		saveFunc(retJson);
-		return retJson;
 	}
 
-	loadDefaultJson(pathToJson, name) {
-		let newFilename = `${name}-failure-${uniqid()}.json`;
-		let pathToNewFile = path.join(pathToDir, 'failures', newFilename);
+	loadDefaultJson(pathToJson) {
+		let newFilename = `logs-failure-${uniqid()}.json`;
+		let pathToNewFile = path.join(pathToLogsDir, 'failures', newFilename);
 		fse.copySync(pathToJson, pathToNewFile);
-		let pathToDefault = path.join(pathToDir, `${name}.default.json`)
+		let pathToDefault = path.join(pathToLogsDir, defaultLogsFilename);
 		let defaultJson = fse.readJsonSync(pathToDefault);
 		return defaultJson;
 	}
@@ -43,16 +42,16 @@ class Logger {
 			time: moment().format('hh:mm:ss A')
 		};
 
-		while (this.logs.logs.length > 200) {
-			this.logs.logs.shift();
+		while (this.logsObject.logs.length > 200) {
+			this.logsObject.logs.shift();
 		}
 
-		this.logs.logs.push(newEntry);
-		storeLogs(this.logs);
+		this.logsObject.logs.push(newEntry);
+		storeLogsObject(this.logsObject);
 	}
 
 	getLogs() {
-		return this.logs.logs;
+		return this.logsObject.logs;
 	}
 
 	logError(err) {
@@ -65,44 +64,44 @@ class Logger {
 			time: moment().format('hh:mm:ss A')
 		};
 
-		this.errors.newErrors.push(newError);
-		storeErrors(this.errors);
+		this.logsObject.newErrors.push(newError);
+		storeLogsObject(this.logsObject);
 	}
 
 	deleteLogs() {
-		this.logs.logs = [];
-		storeLogs(this.logs);
+		this.logsObject.logs = [];
+		storeLogsObject_sync(this.logsObject);
 	}
 
 	pushNewErrorsToOld() {
-		for (let i = 0; i < this.errors.newErrors.length; i++) {
-			this.errors.oldErrors.push(this.errors.newErrors[i]);
+		for (let i = 0; i < this.logsObject.newErrors.length; i++) {
+			this.logsObject.oldErrors.push(this.logsObject.newErrors[i]);
 		}
-		this.errors.newErrors = [];
-		storeErrors(this.errors);
+		this.logsObject.newErrors = [];
+		storeLogsObject_sync(this.logsObject);
 	}
 
 	getOldErrors() {
-		return this.errors.oldErrors;
+		return this.logsObject.oldErrors;
 	}
 
 	getNewErrors() {
-		return this.errors.newErrors;
+		return this.logsObject.newErrors;
 	}
 
 	deleteErrors() {
-		this.errors.oldErrors = [];
-		this.errors.newErrors = [];
-		storeErrors(this.errors);
+		this.logsObject.oldErrors = [];
+		this.logsObject.newErrors = [];
+		storeLogsObject_sync(this.logsObject);
 	}
 }
 
-var storeLogs = (logsToSave) => {
-	fse.writeJsonSync(path.join(pathToDir, 'logs.json'), logsToSave);
+var storeLogsObject = (logsToSave) => {
+	fse.writeJson(path.join(pathToLogsDir, logsFilename), logsToSave);
 };
 
-var storeErrors = (errorsToSave) => {
-	fse.writeJsonSync(path.join(pathToDir, 'errors.json'), errorsToSave);
+var storeLogsObject_sync = (logsToSave) => {
+	fse.writeJsonSync(path.join(pathToLogsDir, logsFilename), logsToSave);
 };
 
 module.exports = {
