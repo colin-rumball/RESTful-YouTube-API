@@ -101,13 +101,6 @@ app.get('/thumbnail/:id', (req, res) => {
 	}
 });
 
-app.get('/shutdown', (req, res) => { // TODO
-	res.render('pages/shutdown', { footer: createFooterObject() });
-	setTimeout(() => {
-		process.exit();
-	}, 3000);
-});
-
 // ------ GET.json
 
 app.get('/config.json', (req, res) => {
@@ -152,6 +145,15 @@ app.post('/uploads', (req, res) => {
 		res.sendStatus(503);
 		logger.logError(new Error('Upload attempt while service is offline'));
 	}
+});
+
+app.post('/shutdown', (req, res) => {
+	var intervalId = setInterval(() => {
+		if (!Logger.saving) {
+			clearInterval(intervalId);
+			process.exit();
+		}
+	}, 1000);
 });
 
 // ------ PATCH

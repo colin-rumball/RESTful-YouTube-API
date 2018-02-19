@@ -47,7 +47,7 @@ class Logger {
 		}
 
 		this.logsObject.logs.push(newEntry);
-		storeLogsObject(this.logsObject);
+		storeLogsObject_sync(this.logsObject);
 	}
 
 	getLogs() {
@@ -65,7 +65,7 @@ class Logger {
 		};
 
 		this.logsObject.newErrors.push(newError);
-		storeLogsObject(this.logsObject);
+		storeLogsObject_sync(this.logsObject);
 	}
 
 	deleteLogs() {
@@ -97,12 +97,22 @@ class Logger {
 }
 
 var storeLogsObject = (logsToSave) => {
-	fse.writeJson(path.join(pathToLogsDir, logsFilename), logsToSave);
+	Logger.saving = true;
+	fse.writeJson(path.join(pathToLogsDir, logsFilename), logsToSave).then((err) => {
+		if (err) {
+			console.error(err);
+		}
+		Logger.saving = false;
+	});
 };
 
 var storeLogsObject_sync = (logsToSave) => {
+	Logger.saving = true;
 	fse.writeJsonSync(path.join(pathToLogsDir, logsFilename), logsToSave);
+	Logger.saving = false;
 };
+
+Logger.saving = false;
 
 module.exports = {
 	Logger
