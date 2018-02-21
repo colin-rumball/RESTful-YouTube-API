@@ -168,6 +168,12 @@ app.patch('/videos', (req, res) => {
 	}
 });
 
+app.patch('/dashboard/tokens/:id', (req, res) => {
+	var tokenId = req.params.id;
+	authManager.selectToken(tokenId);
+	res.sendStatus(200);
+});
+
 // ------ DELETE
 
 app.delete('/dashboard/tokens/:id', (req, res) => {

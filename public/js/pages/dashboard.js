@@ -31,6 +31,19 @@ $(function () {
 		});
 	});
 
+	$('.list-group-item').each(function(token) {
+		$(this).click(function(e) {
+			var url = `/dashboard/tokens/${e.currentTarget.id}`;
+			$.ajax({
+				url: url,
+				type: 'PATCH',
+				success: function (response) {
+					window.location.href = '/dashboard';
+				}
+			});
+		});
+	});
+
 	$('#cs-file-label-container').click(function(e) {
 		$('#cs-file-input').click();
 	});

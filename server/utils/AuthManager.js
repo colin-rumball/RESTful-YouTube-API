@@ -90,6 +90,17 @@ class AuthManager {
 		_.remove(this.tokensJson.tokens, (token) => token.id === id);
 	}
 
+	selectToken(id) {
+		for (let i = 0; i < this.tokensJson.tokens.length; i++) {
+			this.tokensJson.tokens[i].current = false;
+		}
+		var selectedToken = this.tokensJson.tokens.find((token) => token.id === id);
+		if (selectedToken) {
+			selectedToken.current = true;
+		}
+		saveTokensToFile(this.tokensJson);
+	}
+
 	storeToken(id, name, token) {
 		let tokenObj = {
 			id,
