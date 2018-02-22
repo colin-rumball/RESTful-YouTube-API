@@ -29,6 +29,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use('/public', express.static(__dirname + '/../public'));
 app.use(favicon(path.join(__dirname, 'favicon', 'favicon.ico')));
+app.set('views', __dirname + '/../views');
 app.set('view engine', 'ejs');
 
 // Logging middleware
@@ -200,9 +201,9 @@ app.delete('/delete/:id', (req, res) => { // TODO: change url so it's to the vid
 });
 
 // ------ LISTENER
-
-app.listen(5000, (err) => {
-	console.log('Running server on port 5000'); // TODO: do more here
+var port = process.env.PORT || 5000;
+app.listen(port, (err) => {
+	console.log(`Running server on port ${port}`); // TODO: do more here
 });
 
 // ------ SERVICE ATTEMPTS
