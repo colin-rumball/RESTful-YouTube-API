@@ -141,7 +141,7 @@ app.post('/dashboard/client-secret', (req, res) => {
 app.post('/uploads', (req, res) => {
 	if (config.isServiceEnabled('uploading')) {
 		tryUploadVideo(req.body.filename, req.body.callbackUrl);
-		res.redirect('/uploads');
+		res.sendStatus(200);
 	} else {
 		res.sendStatus(503);
 		logger.logError(new Error('Upload attempt while service is offline'));
@@ -253,7 +253,7 @@ var tryDeleteVideo = async (videoId, res) => {
 
 var tryUploadVideo = async (filename, callbackUrl) => {
 	try {
-		let pathToFile = path.join(__dirname, '/../', filename);
+		let pathToFile = path.join(__dirname, '/../', '..', 'Family-Videos-Web-Server', 'clips', filename);
 		const exists = await fse.pathExists(pathToFile);
 
 		if (exists) {
@@ -263,9 +263,9 @@ var tryUploadVideo = async (filename, callbackUrl) => {
 					'snippet.description': filename,
 					'snippet.title': filename,
 					'status.privacyStatus': 'unlisted',
-				}, 'mediaFilename': filename
+				}, 'mediaFilename': pathToFile
 			};
-			const filesize = await fse.statSync(filename).size;
+			const filesize = await fse.statSync(pathToFile).size;
 			var clientSecret = await fse.readJson('server/client_secret/client_secret.json');
 			var authClient = await authManager.getAuthClient(clientSecret);
 			var uId = uniqid();

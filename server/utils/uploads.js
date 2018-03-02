@@ -59,6 +59,10 @@ class Uploads {
 			json: {
 				youtubeId: youtubeId
 			}
+		}).then((response) => {
+			
+		}).catch((e) => {
+
 		});
 	}
 
