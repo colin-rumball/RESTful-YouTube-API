@@ -1,11 +1,15 @@
 const fse = require('fs-extra');
 const express = require('express');
-const cors = require('cors'); // TODO
 const bodyParser = require('body-parser');
 const uniqid = require('uniqid');
 const prettyBytes = require('pretty-bytes');
 const favicon = require('serve-favicon');
 const path = require('path');
+const passport = require('passport');
+const LocalStrategy = require('passport-local');
+const passportLocalMongoose = require('passport-local-mongoose');
+
+var { mongoose } = require('./db/mongoose');
 
 // Services
 const {editVideo} = require('./utils/services');
@@ -19,18 +23,32 @@ const {Config} = require('./config/config');
 const {AuthManager} = require('./utils/AuthManager');
 const {Logger} = require('./utils/Logger');
 
+// Mongo Models
+var { User } = require('./models/User');
+
 var app = express();
 var uploads = new Uploads();
 var config = new Config();
 var authManager = new AuthManager();
 var logger = new Logger();
 
+app.use(require('express-session')({
+	secret: process.env.SESSION_SECRET,
+	resave: false,
+	saveUninitialized: false
+}));
+app.use(passport.initialize());
+app.use(passport.session());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use('/public', express.static(__dirname + '/../public'));
 app.use(favicon(path.join(__dirname, 'favicon', 'favicon.ico')));
 app.set('views', __dirname + '/../views');
 app.set('view engine', 'ejs');
+
+passport.use(new LocalStrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
 // Logging middleware
 app.use((req, res, next) => {
@@ -43,11 +61,11 @@ app.use((req, res, next) => {
 // ----------------------------------------------------------------------------
 // ------ GET
 
-app.get('/', (req, res) => {
+app.get('/', isLoggedIn, (req, res) => {
 	res.render('pages/home', { footer: createFooterObject() });
 });
 
-app.get('/dashboard', (req, res) => {
+app.get('/dashboard', isLoggedIn,(req, res) => {
 	var dbObj = {
 		services: config.getServices(),
 		tokens: authManager.getAllTokens(),
@@ -57,7 +75,7 @@ app.get('/dashboard', (req, res) => {
 	res.render('pages/dashboard', dbObj);
 });
 
-app.get('/dashboard/token-url', (req, res) => {
+app.get('/dashboard/token-url', isLoggedIn, (req, res) => {
 	fse.readJson('server/client_secret/client_secret.json').then((clientSecret) => { // TODO
 		authManager.generateNewOAuth2Client(clientSecret);
 		var url = authManager.generateTokenUrl();
@@ -65,7 +83,7 @@ app.get('/dashboard/token-url', (req, res) => {
 	});
 });
 
-app.get('/errors', (req, res) => {
+app.get('/errors', isLoggedIn,(req, res) => {
 	logger.pushNewErrorsToOld(); //TODO
 	res.render('pages/errors', {
 		errors: logger.getOldErrors(), // TODO
@@ -73,64 +91,67 @@ app.get('/errors', (req, res) => {
 	});
 });
 
-app.get('/logs', (req, res) => {
+app.get('/logs', isLoggedIn,(req, res) => {
 	res.render('pages/logs', {
 		logs: logger.getLogs(),
 		footer: createFooterObject()
 	});
 });
 
-app.get('/upload/local', (req, res) => { // TODO
+app.get('/upload/local', isLoggedIn, (req, res) => { // TODO
 	res.render('pages/upload-local', {footer: createFooterObject()});
 });
 
-app.get('/uploads', (req, res) => {
+app.get('/uploads', isLoggedIn, (req, res) => {
 	res.render('pages/uploads', {
 		uploads: uploads.toJSON(), // TODO
 		footer: createFooterObject()
 	});
 });
 
-app.get('/thumbnail/:id', (req, res) => {
+app.get('/thumbnail/:id', checkAuthToken, (req, res) => {
 	var videoId = req.params.id;
 	if (config.isServiceEnabled('thumbnails')) {
 		tryGetThumbnail(videoId, res); // TODO
-		// res.sendStatus(200); // TODO
 	} else {
 		res.sendStatus(503);
 		logger.logError(new Error('Thumbnail req attempt while service is offline'));
 	}
 });
 
+app.get('/sign-in', (req, res) => {
+	res.render('pages/sign-in', { footer: createFooterObject() });
+})
+
 // ------ GET.json
 
-app.get('/config.json', (req, res) => {
+app.get('/config.json', isLoggedIn,(req, res) => {
 	res.send(config.toJSON());
 });
 
-app.get('/uploads.json', (req, res) => {
+app.get('/uploads.json', isLoggedIn, (req, res) => {
 	res.send(uploads.toJSON());
 });
 
 // ------ POST
 
-app.post('/dashboard/services', (req, res) => {
+app.post('/dashboard/services', isLoggedIn, (req, res) => {
 	config.updateEnabledServices(req.body);
 	res.sendStatus(200);
 });
 
-app.post('/dashboard/tokens', (req, res) => {
+app.post('/dashboard/tokens', isLoggedIn, (req, res) => {
 	authManager.createNewToken(config, req.body)
 	res.sendStatus(200);
 });
 
-app.post('/dashboard/client-secret', (req, res) => {
+app.post('/dashboard/client-secret', isLoggedIn, (req, res) => {
 	let newClientSecret = {
 		installed: req.body.installed
 	};
 
 	let clientSecretDir = __dirname + '/client_secret'; // TODO
-	fse.writeJson(clientSecretDir + '/client_secret.json', newClientSecret).then(() => {// TODO
+	fse.writeJson(clientSecretDir + '/client_secret.json', newClientSecret).then(() => { // TODO
 		res.sendStatus(200);
 	}).catch((e) => {
 		logger.logError(e);
@@ -138,7 +159,7 @@ app.post('/dashboard/client-secret', (req, res) => {
 	});
 });
 
-app.post('/uploads', (req, res) => {
+app.post('/uploads', checkAuthToken, (req, res) => {
 	if (config.isServiceEnabled('uploading')) {
 		tryUploadVideo(req.body.filename, req.body.callbackUrl);
 		res.sendStatus(200);
@@ -148,7 +169,7 @@ app.post('/uploads', (req, res) => {
 	}
 });
 
-app.post('/shutdown', (req, res) => {
+app.post('/shutdown', isLoggedIn, (req, res) => {
 	var intervalId = setInterval(() => {
 		if (!Logger.saving) {
 			clearInterval(intervalId);
@@ -157,9 +178,16 @@ app.post('/shutdown', (req, res) => {
 	}, 1000);
 });
 
+app.post('/sign-in', passport.authenticate('local', {
+	successRedirect: '/',
+	failureRedirect: '/sign-in'
+}), (req, res) => {
+
+});
+
 // ------ PATCH
 
-app.patch('/videos', (req, res) => {
+app.patch('/videos', checkAuthToken, (req, res) => {
 	if (config.isServiceEnabled('editing')) {
 		tryEditVideo(req.body);
 		res.sendStatus(200);
@@ -169,7 +197,7 @@ app.patch('/videos', (req, res) => {
 	}
 });
 
-app.patch('/dashboard/tokens/:id', (req, res) => {
+app.patch('/dashboard/tokens/:id', isLoggedIn, (req, res) => {
 	var tokenId = req.params.id;
 	authManager.selectToken(tokenId);
 	res.sendStatus(200);
@@ -177,23 +205,23 @@ app.patch('/dashboard/tokens/:id', (req, res) => {
 
 // ------ DELETE
 
-app.delete('/dashboard/tokens/:id', (req, res) => {
+app.delete('/dashboard/tokens/:id', isLoggedIn, (req, res) => {
 	var tokenId = req.params.id;
 	authManager.deleteToken(tokenId);
 	res.sendStatus(200);
 });
 
-app.delete('/logs', (req, res) => {
+app.delete('/logs', isLoggedIn, (req, res) => {
 	logger.deleteLogs();
 	res.sendStatus(200);
 });
 
-app.delete('/errors', (req, res) => {
+app.delete('/errors', isLoggedIn, (req, res) => {
 	logger.deleteErrors();
 	res.sendStatus(200);
 });
 
-app.delete('/delete/:id', (req, res) => { // TODO: change url so it's to the videos url not jsut delete
+app.delete('/video/:id', checkAuthToken, (req, res) => {
 	var videoId = req.params.id;
 	if (videoId && (isNumber(videoId) || isString(videoId))) {
 		tryDeleteVideo(videoId, res);
@@ -201,9 +229,9 @@ app.delete('/delete/:id', (req, res) => { // TODO: change url so it's to the vid
 });
 
 // ------ LISTENER
-var port = process.env.PORT || 5000;
+var port = process.env.PORT;
 app.listen(port, (err) => {
-	console.log(`Running server on port ${port}`); // TODO: do more here
+	console.log(`Running server on port ${port}`);
 });
 
 // ------ SERVICE ATTEMPTS
@@ -253,7 +281,7 @@ var tryDeleteVideo = async (videoId, res) => {
 
 var tryUploadVideo = async (filename, callbackUrl) => {
 	try {
-		let pathToFile = path.join(__dirname, '/../', '..', 'Family-Videos-Web-Server', 'clips', filename);
+		let pathToFile = path.join(process.env.PATH_TO_CLIPS, 'uploading', filename);
 		const exists = await fse.pathExists(pathToFile);
 
 		if (exists) {
@@ -299,23 +327,17 @@ function isNumber(value) {
 	return typeof value === 'number' && isFinite(value);
 };
 
-// var req = {
-// 	req: {
-// 		connection: {
-// 			_bytesDispatched: 1
-// 		}
-// 	}
-// };
+function checkAuthToken(req, res, next) {
+	if (req.headers['x-auth'] === process.env.MASTER_AUTH_TOKEN || req.isAuthenticated()) {
+		return next();
+	}
+	req.sendStatus(401);
+}
 
-// uploads.addUpload(uniqid(), 'test.avi', 1000, req);
-// uploads.addUpload(uniqid(), 'test.avi', 1000, req);
-// uploads.addUpload(uniqid(), 'test.avi', 1000, req);
-
-// setInterval(() => {
-// 	for (let i = 0; i < uploads.uploads.length; i++) {
-// 		uploads.uploads[i].req.req.connection._bytesDispatched += 1;
-// 		if (uploads.uploads[i].req.req.connection._bytesDispatched > 1000) {
-// 			uploads.uploads[i].req.req.connection._bytesDispatched = 0;
-// 		}
-// 	};
-// }, 100);
+function isLoggedIn(req, res, next) {
+	if (req.isAuthenticated()) {
+		return next();
+	}
+	req.session.returnTo = req.url;
+	res.redirect('/sign-in');
+};

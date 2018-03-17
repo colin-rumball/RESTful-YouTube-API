@@ -55,9 +55,13 @@ class Uploads {
 		var completedUpload = this.uploads.find((upload) => upload.uid === uId);
 		completedUpload.youtubeId = youtubeId;
 		request.patch({
+			headers: {
+				'x-auth': process.env.MASTER_AUTH_TOKEN
+			},
 			url: completedUpload.callbackUrl,
 			json: {
-				youtubeId: youtubeId
+				youtube_id: youtubeId,
+				state: 'unlisted'
 			}
 		}).then((response) => {
 			
@@ -90,17 +94,6 @@ class Uploads {
     //     }
 
     //     return user;
-    // }
-
-    // getUser(id) {
-    //     var user = this.users.find((user) => user.id == id);
-    //     return user;
-    // }
-
-    // getUserList(room) {
-    //     var roomUsers = this.users.filter((user) => user.room === room);
-    //     var namesArray = roomUsers.map((user) => user.name);
-    //     return namesArray;
     // }
 }
 
