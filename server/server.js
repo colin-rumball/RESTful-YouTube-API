@@ -76,7 +76,7 @@ app.get('/dashboard', isLoggedIn,(req, res) => {
 });
 
 app.get('/dashboard/token-url', isLoggedIn, (req, res) => {
-	fse.readJson('server/client_secret/client_secret.json').then((clientSecret) => { // TODO
+	fse.readJson('client_secret/client_secret.json').then((clientSecret) => { // TODO
 		authManager.generateNewOAuth2Client(clientSecret);
 		var url = authManager.generateTokenUrl();
 		res.send({url});
@@ -246,7 +246,7 @@ var tryEditVideo = async (body) => {
 			'snippet.title': body.title
 		}
 	};
-	var clientSecret = await fse.readJson('server/client_secret/client_secret.json'); // TODO
+	var clientSecret = await fse.readJson('client_secret/client_secret.json'); // TODO
 	var authClient = await authManager.getAuthClient(clientSecret);
 	editVideo(authClient, params);
 }
@@ -257,7 +257,7 @@ var tryGetThumbnail = async (videoId, res) => { // TODO
 		'id': videoId,
 		'part': 'snippet,contentDetails,statistics'
 	}};
-	var clientSecret = await fse.readJson('server/client_secret/client_secret.json'); // TODO
+	var clientSecret = await fse.readJson('client_secret/client_secret.json'); // TODO
 	var authClient = await authManager.getAuthClient(clientSecret);
 	getThumbnail(authClient, params, (err, response) => {
 		if (err) {
@@ -270,7 +270,7 @@ var tryGetThumbnail = async (videoId, res) => { // TODO
 
 var tryDeleteVideo = async (videoId, res) => {
 	if (config.isServiceEnabled('deleting')) {
-		var clientSecret = await fse.readJson('server/client_secret/client_secret.json'); // TODO
+		var clientSecret = await fse.readJson('client_secret/client_secret.json'); // TODO
 		var authClient = await authManager.getAuthClient(clientSecret);
 		deleteVideo(authClient, videoId);
 	} else {
@@ -294,7 +294,7 @@ var tryUploadVideo = async (filename, callbackUrl) => {
 				}, 'mediaFilename': pathToFile
 			};
 			const filesize = await fse.statSync(pathToFile).size;
-			var clientSecret = await fse.readJson('server/client_secret/client_secret.json');
+			var clientSecret = await fse.readJson('client_secret/client_secret.json');
 			var authClient = await authManager.getAuthClient(clientSecret);
 			var uId = uniqid();
 			var uploadReq = await uploadVideo(authClient, params, function (youtubeId) {
