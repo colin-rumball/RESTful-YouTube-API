@@ -1,3 +1,5 @@
 /node_modules
-/logs/failures
 /server/iisnode
+/logs
+web.config
+logs/logs.json
