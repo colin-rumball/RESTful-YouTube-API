@@ -3,3 +3,4 @@
 /logs
 web.config
 logs/logs.json
+server/tokens/tokens.json
