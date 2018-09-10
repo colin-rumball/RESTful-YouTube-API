@@ -129,7 +129,7 @@ app.get('/sign-in', (req, res) => {
 
 app.get('/uploads-stream', SSE, async (req, res) => {
 	res.set({
-		'Access-Control-Allow-Origin': 'http://www.homevideos.colinrumball.com',
+		'Access-Control-Allow-Origin': '*',
 		'Access-Control-Expose-Headers': '*',
 		'Access-Control-Allow-Credentials': true
 	});
