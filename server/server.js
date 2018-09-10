@@ -1,3 +1,5 @@
+require('./node-config/config');
+
 const fse = require('fs-extra');
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -5,8 +7,11 @@ const uniqid = require('uniqid');
 const prettyBytes = require('pretty-bytes');
 const favicon = require('serve-favicon');
 const path = require('path');
+const request = require('request-promise-native');
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
+const SSE = require('./utils/sse-middleware');
+const SSEController = require('./utils/sse-controller');
 const passportLocalMongoose = require('passport-local-mongoose');
 
 var { mongoose } = require('./db/mongoose');
@@ -18,7 +23,7 @@ const {uploadVideo} = require('./utils/services');
 const {deleteVideo} = require('./utils/services');
 
 // Classes
-const {Uploads} = require('./utils/uploads');
+const UploadsController = require('./utils/UploadsController');
 const {Config} = require('./config/config');
 const {AuthManager} = require('./utils/AuthManager');
 const {Logger} = require('./utils/Logger');
@@ -27,7 +32,6 @@ const {Logger} = require('./utils/Logger');
 var { User } = require('./models/User');
 
 var app = express();
-var uploads = new Uploads();
 var config = new Config();
 var authManager = new AuthManager();
 var logger = new Logger();
@@ -104,7 +108,7 @@ app.get('/upload/local', isLoggedIn, (req, res) => { // TODO
 
 app.get('/uploads', isLoggedIn, (req, res) => {
 	res.render('pages/uploads', {
-		uploads: uploads.toJSON(), // TODO
+		uploads: UploadsController.toJSON(), // TODO
 		footer: createFooterObject()
 	});
 });
@@ -123,6 +127,15 @@ app.get('/sign-in', (req, res) => {
 	res.render('pages/sign-in', { footer: createFooterObject() });
 })
 
+app.get('/uploads-stream', SSE, async (req, res) => {
+	res.set({
+		'Access-Control-Allow-Origin': 'http://www.shows.colinrumball.com',
+		'Access-Control-Expose-Headers': '*',
+		'Access-Control-Allow-Credentials': true
+	});
+	SSEController.StreamToClient(res);
+});
+
 // ------ GET.json
 
 app.get('/config.json', isLoggedIn,(req, res) => {
@@ -130,7 +143,7 @@ app.get('/config.json', isLoggedIn,(req, res) => {
 });
 
 app.get('/uploads.json', isLoggedIn, (req, res) => {
-	res.send(uploads.toJSON());
+	res.send(UploadsController.toJSON());
 });
 
 // ------ POST
@@ -161,7 +174,14 @@ app.post('/dashboard/client-secret', isLoggedIn, (req, res) => {
 
 app.post('/uploads', checkAuthToken, (req, res) => {
 	if (config.isServiceEnabled('uploading')) {
-		tryUploadVideo(req.body.filename, req.body.callbackUrl);
+		if (process.env.NODE_ENV === 'development')
+		{
+			fakeUploadVideo(req.body.filename, req.body.callbackUrl);
+		}
+		else
+		{
+			tryUploadVideo(req.body.filename, req.body.callbackUrl);
+		}
 		res.sendStatus(200);
 	} else {
 		res.sendStatus(503);
@@ -281,7 +301,7 @@ var tryDeleteVideo = async (videoId, res) => {
 
 var tryUploadVideo = async (filename, callbackUrl) => {
 	try {
-		let pathToFile = path.join(process.env.PATH_TO_CLIPS, 'uploading', filename);
+		let pathToFile = path.join(process.env.PATH_TO_CLIPS, filename);
 		const exists = await fse.pathExists(pathToFile);
 
 		if (exists) {
@@ -298,9 +318,35 @@ var tryUploadVideo = async (filename, callbackUrl) => {
 			var authClient = await authManager.getAuthClient(clientSecret);
 			var uId = uniqid();
 			var uploadReq = await uploadVideo(authClient, params, function (youtubeId) {
-				uploads.onUploadComplete(uId, youtubeId);
+				UploadsController.onUploadComplete(uId, youtubeId);
 			});
-			uploads.addUpload(uId, filename, filesize, uploadReq, callbackUrl);
+			UploadsController.addUpload(uId, filename, filesize, uploadReq, callbackUrl);
+		} else {
+			throw new Error(`File (${filename}) does not exist for upload.`);
+		}
+	} catch(e) {
+		logger.logError(e);
+	}
+};
+
+var fakeUploadVideo = async (filename, callbackUrl) => {
+	try {
+		let pathToFile = path.join(process.env.PATH_TO_CLIPS, filename);
+		const exists = await fse.pathExists(pathToFile);
+
+		if (exists) {
+			var params = { // TODO
+				'params': { 'part': 'snippet,status' }, 'properties': {
+					'snippet.categoryId': '22',
+					'snippet.description': filename,
+					'snippet.title': filename,
+					'status.privacyStatus': 'unlisted',
+				}, 'mediaFilename': pathToFile
+			};
+			const filesize = await fse.statSync(pathToFile).size;
+			// var clientSecret = await fse.readJson('client_secret/client_secret.json');
+			var uId = uniqid();
+			UploadsController.addFakeUpload(uId, filename, filesize, {}, callbackUrl);
 		} else {
 			throw new Error(`File (${filename}) does not exist for upload.`);
 		}
@@ -335,7 +381,7 @@ function checkAuthToken(req, res, next) {
 }
 
 function isLoggedIn(req, res, next) {
-	if (req.isAuthenticated()) {
+	if (req.isAuthenticated() || process.env.NODE_ENV === 'development') {
 		return next();
 	}
 	req.session.returnTo = req.url;

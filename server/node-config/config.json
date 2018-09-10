@@ -1,0 +1,16 @@
+{
+    "test": {
+        "PORT": 3001,
+        "MONGODB_URI": "mongodb://192.168.1.9:27017/RumballHomeVideosAppTest",
+		"SESSION_SECRET": "nsiSA)P<ANWZo(KosVa]?3AB|v*h3?",
+		"MASTER_AUTH_TOKEN": "v7Y=rHn1^?fuYJOuZx|f=G-|emBr|e]$MxHRMoi?:SG3+goT|s3S(=z=2XAD",
+		"PATH_TO_CLIPS": "G:/Development Environment/Family-Videos-Web-Server/clips"
+    },
+    "development": {
+        "PORT": 3001,
+        "MONGODB_URI": "mongodb://192.168.1.9:27017/RumballHomeVideosAppDev",
+        "SESSION_SECRET": "nsiSA)P<ANWZo(KosVa]?3AB|v*h3?",
+		"MASTER_AUTH_TOKEN": "v7Y=rHn1^?fuYJOuZx|f=G-|emBr|e]$MxHRMoi?:SG3+goT|s3S(=z=2XAD",
+		"PATH_TO_CLIPS": "G:/Development Environment/Family-Videos-Web-Server/clips"
+    }
+}

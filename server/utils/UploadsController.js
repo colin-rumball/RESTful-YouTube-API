@@ -19,6 +19,35 @@ class Uploads {
         return upload;
 	}
 
+	addFakeUpload(uid, filename, fileSize, req, callbackUrl) {
+		req.req = {
+			connection : {
+				_bytesDispatched: 0
+			}
+		};
+        var upload = {
+			uid,
+			filename,
+			fileSize,
+			youtubeId: null,
+			req,
+			callbackUrl
+		};
+		this.uploads.push(upload);
+		
+		const increaseAmount = fileSize / 2000;
+		const intervalId = setInterval(() =>{
+			req.req.connection._bytesDispatched += increaseAmount;
+			if (req.req.connection._bytesDispatched >= upload.fileSize)
+			{
+				this.onUploadComplete(uid, 'Bey4XXJAqS8');
+				clearInterval(intervalId);
+			}
+		}, 100)
+
+        return upload;
+	}
+
 	getUpload(uid) {
 		var upload = this.uploads.find((upload) => upload.uid == uid);
 		return upload;
@@ -97,4 +126,6 @@ class Uploads {
     // }
 }
 
-module.exports = { Uploads };
+const UploadsController = new Uploads();
+
+module.exports = UploadsController;
